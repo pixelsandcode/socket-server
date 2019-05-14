@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      h4{ font-size: 20px; margin-bottom: 10px; }
+      .col { vertical-align: top; width: 40%; display: inline-block; border: 2px solid rgb(226, 226, 226); position: relative; padding: 10px; }
+      form { position: relative; top: 0; width: 100%; margin-bottom: 10px; }
+      form input { border: 0; padding: 10px; width: 75%; margin-right: .5%; background: rgb(154, 185, 231) }
+      form button { width: 21%; background: rgb(88, 138, 214); border: none; padding: 10px; }
+      #female-list, #city-list { list-style-type: none; margin: 0; padding: 0; height: 250px; overflow: auto; }
+      li { padding: 5px 10px; }
+      li:nth-child(odd) { background: #eee; }
+      #female-list, #city-list { margin-bottom: 40px }
+    </style>
+  </head>
+  <body>
+    <div class="col">
+        <h4>Female Names</h4>
+        <form id="female" action="">
+          <input id="female-name" autocomplete="off" /><button>Add Female</button>
+        </form>
+        <ul id="female-list"></ul>
+    </div>
+    <div class="col">
+      <h4>City Names</h4>
+      <form id="city" action="">
+        <input id="city-name" autocomplete="off" /><button>Add City</button>
+      </form>
+      <ul id="city-list"></ul>
+    </div>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      const FEMALE = {
+        NEW: 'new female',
+        SAVE: 'female save',
+        LOAD: 'female load'
+      }
+      const CITY = {
+        NEW: 'new city',
+        SAVE: 'city save',
+        LOAD: 'city load'
+      }
+      $(function () {
+        var socket = io();
+        $('form#female').submit(function(){
+          socket.emit(FEMALE.SAVE, $('#female-name').val());
+          $('#female-name').val('');
+          return false;
+        });
+        $('form#city').submit(function(){
+          socket.emit(CITY.SAVE, $('#city-name').val());
+          $('#city-name').val('');
+          return false;
+        });
+        socket.on(FEMALE.NEW, function(item){
+          $('#female-list').append($('<li>').text(item));
+        });
+        socket.on(CITY.NEW, function(item){
+          $('#city-list').append($('<li>').text(item));
+        });
+        socket.on(FEMALE.LOAD, function(list){
+          list.forEach(item => {
+            $('#female-list').append($('<li>').text(item));
+          }); 
+        });
+        socket.on(CITY.LOAD, function(list){
+          list.forEach(item => {
+            $('#city-list').append($('<li>').text(item));
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
